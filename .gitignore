@@ -1,4 +1,6 @@
 .vscode
-src/main.exe
+src/platformer.exe
 src/lib/
 src/include/
+*.o
+*.dll
