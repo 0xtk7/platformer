@@ -1,6 +1,8 @@
 .vscode
 src/platformer.exe
-src/lib/
-src/include/
+src/SDL_image/lib
+src/SDL2/lib
+src/SDL_image/include
+src/SDL2/include
 *.o
 *.dll
