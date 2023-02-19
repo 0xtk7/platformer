@@ -24,11 +24,13 @@ int playerY = HEIGHT / 2;
 int playerW = 50;
 int playerH = 100;
 
+// Base sprite
+const char *playerSprite = "img/red.png";
+
 void update() {
     // Draw player
-    Player::drawPlayer(window, renderer, playerX, playerY, playerW, playerH);
+    Player::drawPlayer(window, renderer, playerX, playerY, playerW, playerH, playerSprite);
 
-    SDL_RenderClear(renderer);
 }
 
 void checkCollision() {
@@ -49,10 +51,18 @@ void checkCollision() {
     }
 }
 
-int main(int argc, char** argv) {
-    // Clear terminal  
-    std::system("cls");
+void render() {
+    
+    // Set background color
+    SDL_SetRenderDrawColor(renderer, 0, 180, 180, 255);
 
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, Player::playerTexture, NULL, &Player::player);
+    SDL_RenderPresent(renderer);
+}
+
+int main(int argc, char** argv) {
+    
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_Event event;
@@ -69,7 +79,7 @@ int main(int argc, char** argv) {
     // Main window loop
     bool running = true;
     while (running) {
-        
+
         // Check if player is on ground
         bool onGround = (playerY + playerH >= HEIGHT);
 
@@ -96,6 +106,7 @@ int main(int argc, char** argv) {
                     else if (event.key.keysym.sym == SDLK_SPACE) {
                         
                         if (onGround) {
+
                             // Jump left
                             if (keyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_SPACE]) {
                         
@@ -116,22 +127,23 @@ int main(int argc, char** argv) {
 
                             // Jump straight up 
                             else {
-                                
+
                                 Player::velocityX = 0.0f;
                                 Player::velocityY = 0.0f; 
 
                                 Player::velocityY += Player::jumpForce;
                             }
-            
                         }
                     }
 
                     // Crouching
                     else if (event.key.keysym.sym == SDLK_LCTRL) {
                         if (onGround) {
+                            playerY = 550;
                             // Half player speed & height
                             Player::speed = 1.5f;
                             playerH = 50; 
+                            playerSprite = "img/blue.png";
                         }
                     }
                 break;
@@ -141,7 +153,8 @@ int main(int argc, char** argv) {
             if (event.type == SDL_KEYUP) {
                 if (event.key.keysym.sym == SDLK_LCTRL) {
                     Player::speed = 3.0f;
-                    playerH = 100;
+                    playerH = 100;   
+                    playerSprite = "img/red.png";                
                 }
             }
         }
@@ -168,6 +181,7 @@ int main(int argc, char** argv) {
 
         checkCollision();
         update();
+        render();
     }
 
     SDL_DestroyRenderer(renderer);
