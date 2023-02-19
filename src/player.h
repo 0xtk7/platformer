@@ -10,7 +10,7 @@ namespace Player {
     extern float maxSpeed;
     extern const float jumpForce;
 
-    void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y);
+    void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y, int w, int h);
 }
 
 #endif

@@ -21,9 +21,12 @@ SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED
 int playerX = WIDTH / 2; 
 int playerY = HEIGHT / 2;
 
+int playerW = 50;
+int playerH = 100;
+
 void update() {
     // Draw player
-    Player::drawPlayer(window, renderer, playerX, playerY);
+    Player::drawPlayer(window, renderer, playerX, playerY, playerW, playerH);
 
     SDL_RenderClear(renderer);
 }
@@ -33,15 +36,15 @@ void checkCollision() {
     if (playerX <= 0) {
         playerX = 0;
         Player::velocityX = 0;
-    } else if (playerX + Player::player.w >= WIDTH) {
-        playerX = WIDTH - Player::player.w;
+    } else if (playerX + playerW >= WIDTH) {
+        playerX = WIDTH - playerW;
         Player::velocityX = 0;
     }
     if (playerY <= 0) {
         playerY = 0;
         Player::velocityY = 0;
-    } else if (playerY + Player::player.h >= HEIGHT) {
-        playerY = HEIGHT - Player::player.h;
+    } else if (playerY + playerH >= HEIGHT) {
+        playerY = HEIGHT - playerH;
         Player::velocityY = 0;
     }
 }
@@ -66,6 +69,9 @@ int main(int argc, char** argv) {
     // Main window loop
     bool running = true;
     while (running) {
+        
+        // Check if player is on ground
+        bool onGround = (playerY + playerH >= HEIGHT);
 
         // Check events
         if (SDL_PollEvent(&event)) {
@@ -77,26 +83,22 @@ int main(int argc, char** argv) {
 
                 // Keyboard movement
                 case SDL_KEYDOWN:
-                    std::cout << playerX << std::endl;
-                    
+            
                     // Check if movement keys have been pressed
                     if (event.key.keysym.sym == SDLK_a) {
                         Player::velocityX = -Player::speed;
 
                     } else if (event.key.keysym.sym == SDLK_d) {
                         Player::velocityX = Player::speed;
+                    } 
 
-                    } else if (event.key.keysym.sym == SDLK_SPACE) {
-
-                        // Check if player is on ground
-                        bool onGround = (playerY + Player::player.h >= HEIGHT);
-
-                    
+                    // Jumping
+                    else if (event.key.keysym.sym == SDLK_SPACE) {
+                        
                         if (onGround) {
-
                             // Jump left
                             if (keyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_SPACE]) {
-                           
+                        
                                 Player::velocityY = 0.0f; 
 
                                 Player::velocityY += Player::jumpForce;
@@ -120,9 +122,27 @@ int main(int argc, char** argv) {
 
                                 Player::velocityY += Player::jumpForce;
                             }
+            
+                        }
+                    }
+
+                    // Crouching
+                    else if (event.key.keysym.sym == SDLK_LCTRL) {
+                        if (onGround) {
+                            // Half player speed & height
+                            Player::speed = 1.5f;
+                            playerH = 50; 
                         }
                     }
                 break;
+            }
+
+            // Reset player height & speed after crouching
+            if (event.type == SDL_KEYUP) {
+                if (event.key.keysym.sym == SDLK_LCTRL) {
+                    Player::speed = 3.0f;
+                    playerH = 100;
+                }
             }
         }
 

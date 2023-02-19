@@ -10,14 +10,14 @@ namespace Player {
     const float jumpForce = -100.0f;
     
     // Draw player
-    void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y) {
+    void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y, int w, int h) {
         
         SDL_RenderClear(renderer);
 
         player.x = x;
         player.y = y;
-        player.w = 50;
-        player.h = 100;
+        player.w = w;
+        player.h = h;
 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderDrawRect(renderer, &player);
