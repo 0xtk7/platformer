@@ -1,53 +1,94 @@
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
+#include "player.h"
 
 // Window properties
 #define WIDTH 800
 #define HEIGHT 600
 #define WINDOW_TITLE "gameplay"
 
-SDL_Renderer *renderer;
-SDL_Surface *surface;
-SDL_Texture *texture;
+// Create window
+SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
 
-void renderImage(SDL_Window* window, const char* imgPath) {
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    surface = IMG_Load(imgPath); 
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-  
+// Create renderer
+SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+// Player position
+int playerX, playerY = 10;
+
+void update() {
+    // Draw player
+    Player::drawPlayer(window, renderer, playerX, playerY);
+
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    SDL_RenderPresent(renderer);
+}
+
+void checkCollision() {
+    // Check if player collides with window border
+    if (playerX <= 0) {
+        playerX = 0;
+        Player::velocityX = 0;
+    } else if (playerX + Player::player.w >= WIDTH) {
+        playerX = WIDTH - Player::player.w;
+        Player::velocityX = 0;
+    }
+    if (playerY <= 0) {
+        playerY = 0;
+        Player::velocityY = 0;
+    } else if (playerY + Player::player.h >= HEIGHT) {
+        playerY = HEIGHT - Player::player.h;
+        Player::velocityY = 0;
+    }
 }
 
 int main(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    // Create window
-    SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Event event;
 
     // Return error if window creation was unsucessful
     if (NULL == window) {
         std::cout << "Could not create window: " << SDL_GetError() << std::endl;
         return 1;
     }
-
-    SDL_Event windowEvent;
-
+    
     // Main window loop
-    while (1) {
-        if (SDL_PollEvent(&windowEvent)) {
-            if (SDL_QUIT == windowEvent.type) {
+    bool running = true;
+    while (running) {
+
+        // Check events
+        if (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                // Exit on close
+                case SDL_QUIT:
+                    running = false;    
+                break;
+
+                // Keyboard movement
+                case SDL_KEYDOWN:
+                    std::cout << playerX << std::endl;
+                    
+                    // Check if a has been pressed
+                    if (event.key.keysym.sym == SDLK_a) {
+                        playerX -= Player::speed;
+                    } else if (event.key.keysym.sym == SDLK_d) {
+                        playerX += Player::speed;
+                    }
                 break;
             }
         }
 
-        renderImage(window, "img/red.png");
+        printf("X: %d | Y: %d\n", playerX, playerY);
+
+        // Update player velocity
+        playerX += (int)Player::velocityX;
+        playerY += (int)Player::velocityY;
+
+        checkCollision();
+        update();
     }
 
-    SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
