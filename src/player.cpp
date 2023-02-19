@@ -4,9 +4,11 @@
 
 namespace Player {
     SDL_Rect player;
-    float velocityX, velocityY = 1.0f;
-    float speed = 5.0f;
-
+    float velocityX, velocityY = 0.0f;
+    float speed = 3.0f;
+    float maxSpeed = 5.0f;
+    const float jumpForce = -100.0f;
+    
     // Draw player
     void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y) {
         

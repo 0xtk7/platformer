@@ -1,12 +1,15 @@
 #include <iostream>
 #include <SDL.h>
-#include <SDL_image.h>
+#include <cmath>
 #include "player.h"
 
 // Window properties
 #define WIDTH 800
 #define HEIGHT 600
 #define WINDOW_TITLE "gameplay"
+
+#define gravity 0.1f
+#define friction 0.96f
 
 // Create window
 SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
@@ -15,7 +18,8 @@ SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_
 SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 // Player position
-int playerX, playerY = 10;
+int playerX = WIDTH / 2; 
+int playerY = HEIGHT / 2;
 
 void update() {
     // Draw player
@@ -43,6 +47,9 @@ void checkCollision() {
 }
 
 int main(int argc, char** argv) {
+    // Clear terminal  
+    std::system("cls");
+
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_Event event;
@@ -53,6 +60,9 @@ int main(int argc, char** argv) {
         return 1;
     }
     
+    // State of keys
+    const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+
     // Main window loop
     bool running = true;
     while (running) {
@@ -69,21 +79,72 @@ int main(int argc, char** argv) {
                 case SDL_KEYDOWN:
                     std::cout << playerX << std::endl;
                     
-                    // Check if a has been pressed
+                    // Check if movement keys have been pressed
                     if (event.key.keysym.sym == SDLK_a) {
-                        playerX -= Player::speed;
+                        Player::velocityX = -Player::speed;
+
                     } else if (event.key.keysym.sym == SDLK_d) {
-                        playerX += Player::speed;
+                        Player::velocityX = Player::speed;
+
+                    } else if (event.key.keysym.sym == SDLK_SPACE) {
+
+                        // Check if player is on ground
+                        bool onGround = (playerY + Player::player.h >= HEIGHT);
+
+                    
+                        if (onGround) {
+
+                            // Jump left
+                            if (keyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_SPACE]) {
+                           
+                                Player::velocityY = 0.0f; 
+
+                                Player::velocityY += Player::jumpForce;
+                                Player::velocityX -= Player::speed;
+                            } 
+                            
+                            // Jump right
+                            else if (keyboardState[SDL_SCANCODE_D] && keyboardState[SDL_SCANCODE_SPACE]) {
+                                
+                                Player::velocityY = 0.0f; 
+
+                                Player::velocityY += Player::jumpForce;
+                                Player::velocityX += Player::speed;
+                            }
+
+                            // Jump straight up 
+                            else {
+                                
+                                Player::velocityX = 0.0f;
+                                Player::velocityY = 0.0f; 
+
+                                Player::velocityY += Player::jumpForce;
+                            }
+                        }
                     }
                 break;
             }
         }
 
+        // Display player coordinates
         printf("X: %d | Y: %d\n", playerX, playerY);
 
         // Update player velocity
         playerX += (int)Player::velocityX;
+
+        // Gravity
+        Player::velocityY += gravity;
         playerY += (int)Player::velocityY;
+
+        // Friction
+        Player::velocityX *= friction;
+        Player::velocityY *= friction;
+
+        // Cap max velocity
+        if (Player::velocityX > Player::maxSpeed) Player::velocityX = Player::maxSpeed;
+        if (Player::velocityX < -Player::maxSpeed) Player::velocityX = -Player::maxSpeed;
+        if (Player::velocityY > Player::maxSpeed) Player::velocityY = Player::maxSpeed;
+        if (Player::velocityY < -Player::maxSpeed) Player::velocityY = -Player::maxSpeed;
 
         checkCollision();
         update();
