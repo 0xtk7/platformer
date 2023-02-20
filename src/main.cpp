@@ -1,10 +1,11 @@
 #include <iostream>
 #include <SDL.h>
 #include <cmath>
+
 #include "player.h"
 
 // Window properties
-#define WIDTH 800
+#define WIDTH 1400
 #define HEIGHT 600
 #define WINDOW_TITLE "gameplay"
 
@@ -30,7 +31,6 @@ const char *playerSprite = "img/red.png";
 void update() {
     // Draw player
     Player::drawPlayer(window, renderer, playerX, playerY, playerW, playerH, playerSprite);
-
 }
 
 void checkCollision() {
@@ -52,12 +52,13 @@ void checkCollision() {
 }
 
 void render() {
-    
     // Set background color
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
+    
     SDL_RenderClear(renderer);
+
     SDL_RenderCopy(renderer, Player::playerTexture, NULL, &Player::player);
+
     SDL_RenderPresent(renderer);
 }
 
@@ -91,72 +92,65 @@ int main(int argc, char** argv) {
                     running = false;    
                 break;
 
-                // Keyboard movement
-                case SDL_KEYDOWN:
+            }
+        }
+
+        // Check if movement keys have been pressed
+        if (keyboardState[SDL_SCANCODE_A]) {
+
+            Player::velocityX = -Player::speed;
+        } else if (keyboardState[SDL_SCANCODE_D]) {
+
+            Player::velocityX = Player::speed;
+        } 
+
+        // Jumping & crouching            
+        if (onGround) {
+
+            // Jump left
+            if (keyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_SPACE]) {
+
+                Player::velocityY += Player::jumpForce;
+                Player::velocityX = -Player::speed;
+
+            } 
             
-                    // Check if movement keys have been pressed
-                    if (event.key.keysym.sym == SDLK_a) {
-                        Player::velocityX = -Player::speed;
+            // Jump right
+            else if (keyboardState[SDL_SCANCODE_D] && keyboardState[SDL_SCANCODE_SPACE]) {
+            
+                Player::velocityY += Player::jumpForce;
+                Player::velocityX = Player::speed;
+            }
 
-                    } else if (event.key.keysym.sym == SDLK_d) {
-                        Player::velocityX = Player::speed;
-                    } 
+            // Jump straight up 
+            else if (keyboardState[SDL_SCANCODE_SPACE]) {
 
-                    // Jumping
-                    else if (event.key.keysym.sym == SDLK_SPACE) {
-                        
-                        if (onGround) {
+                Player::velocityX = 0.0f;
+                Player::velocityY = 0.0f; 
 
-                            // Jump left
-                            if (keyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_SPACE]) {
+                Player::velocityY += Player::jumpForce;
 
-                                Player::velocityY += Player::jumpForce;
-                                Player::velocityX -= Player::speed;
-                            } 
-                            
-                            // Jump right
-                            else if (keyboardState[SDL_SCANCODE_D] && keyboardState[SDL_SCANCODE_SPACE]) {
-                            
-                                Player::velocityY += Player::jumpForce;
-                                Player::velocityX = Player::speed;
-                            }
+            }
 
-                            // Jump straight up 
-                            if (Player::velocityX == 0.0f) {
-
-                                Player::velocityX = 0.0f;
-                                Player::velocityY = 0.0f; 
-
-                                Player::velocityY += Player::jumpForce;
-                            }
-                        }
-                    }
-
-                    // Crouching
-                    else if (event.key.keysym.sym == SDLK_LCTRL) {
-                        if (onGround) {
-                            playerY = 550;
-                            // Half player speed & height
-                            Player::speed = 1.5f;
-                            playerH = 50; 
-                            playerSprite = "img/blue.png";
-                        }
-                    }
-                break;
+            // Crouching
+            else if (keyboardState[SDL_SCANCODE_LCTRL]) {
+                playerY = 550;
+                // Half player speed & height
+                Player::speed = 1.5f;
+                playerH = 50; 
+                playerSprite = "img/blue.png";
             }
 
             // Reset player height & speed after crouching
-            if (event.type == SDL_KEYUP) {
-                if (event.key.keysym.sym == SDLK_LCTRL) {
-                    Player::speed = 3.0f;
-                    playerH = 100;   
-                    playerSprite = "img/red.png";                
-                }
+            else if (!keyboardState[SDL_SCANCODE_LCTRL]) {
+                Player::speed = 3.0f;
+                playerH = 100;   
+                playerSprite = "img/red.png";                
             }
         }
 
         // Display player coordinates
-        printf("X: %d | Y: %d\n", playerX, playerY);
+        printf("X: %d | Y: %d | vX: %f | vY: %f\n", playerX, playerY, Player::velocityX, Player::velocityY);
 
         // Update player velocity
         playerX += (int)Player::velocityX;
@@ -167,17 +161,16 @@ int main(int argc, char** argv) {
 
         // Friction
         Player::velocityX *= friction;
-        Player::velocityY *= friction;
 
-        // Cap max velocity
-        if (Player::velocityX > Player::maxSpeed) Player::velocityX = Player::maxSpeed;
-        if (Player::velocityX < -Player::maxSpeed) Player::velocityX = -Player::maxSpeed;
-        if (Player::velocityY > Player::maxSpeed) Player::velocityY = Player::maxSpeed;
-        if (Player::velocityY < -Player::maxSpeed) Player::velocityY = -Player::maxSpeed;
+        // Cap max vertical velocity
+        if (Player::velocityY > Player::speed) Player::velocityY = Player::speed;
+        if (Player::velocityY < -Player::speed) Player::velocityY = -Player::speed;
 
         checkCollision();
         update();
         render();
+
+        SDL_Delay(5);
     }
 
     SDL_DestroyRenderer(renderer);
