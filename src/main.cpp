@@ -5,12 +5,12 @@
 #include "player.h"
 
 // Window properties
-#define WIDTH 1400
+#define WIDTH 800
 #define HEIGHT 600
 #define WINDOW_TITLE "gameplay"
 
 #define gravity 0.1f
-#define friction 0.96f
+#define friction 0.6f
 
 // Create window
 SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
@@ -18,9 +18,9 @@ SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_
 // Create renderer
 SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-// Player position
-int playerX = WIDTH / 2; 
-int playerY = HEIGHT / 2;
+// Player spawn position
+int playerX = WIDTH / 3; 
+int playerY = HEIGHT;
 
 int playerW = 50;
 int playerH = 100;
