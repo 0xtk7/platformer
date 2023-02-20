@@ -9,7 +9,7 @@
 #define HEIGHT 600
 #define WINDOW_TITLE "gameplay"
 
-#define gravity 0.1f
+#define gravity 0.4f
 #define friction 0.6f
 
 // Create window
@@ -29,7 +29,9 @@ int playerH = 100;
 const char *playerSprite = "img/red.png";
 
 void update() {
-    // Draw player
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
     Player::drawPlayer(window, renderer, playerX, playerY, playerW, playerH, playerSprite);
 }
 
@@ -77,9 +79,14 @@ int main(int argc, char** argv) {
     // State of keys
     const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
 
+    Uint64 startTime, frameTime, fps;
+
+
     // Main window loop
     bool running = true;
     while (running) {
+
+        startTime = SDL_GetTicks();
 
         // Check if player is on ground
         bool onGround = (playerY + playerH >= HEIGHT);
@@ -150,18 +157,19 @@ int main(int argc, char** argv) {
         }
 
         // Display player coordinates
-        printf("X: %d | Y: %d | vX: %f | vY: %f\n", playerX, playerY, Player::velocityX, Player::velocityY);
+        printf("X: %d | Y: %d | vX: %f | vY: %f | FPS: %d\n", playerX, playerY, Player::velocityX, Player::velocityY, fps);
 
         // Update player velocity
         playerX += (int)Player::velocityX;
 
         // Gravity
-        Player::velocityY += gravity;
+        Player::velocityY += (gravity + Player::weight);
         playerY += (int)Player::velocityY;
 
         // Friction
         Player::velocityX *= friction;
-
+        Player::velocityY *= friction;
+        
         // Cap max vertical velocity
         if (Player::velocityY > Player::speed) Player::velocityY = Player::speed;
         if (Player::velocityY < -Player::speed) Player::velocityY = -Player::speed;
@@ -170,6 +178,9 @@ int main(int argc, char** argv) {
         update();
         render();
 
+        frameTime = SDL_GetTicks() - startTime;
+        fps = (frameTime > 0) ? 1000.0f / frameTime : 0.0f;
+        
         SDL_Delay(5);
     }
 

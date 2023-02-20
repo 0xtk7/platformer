@@ -6,7 +6,7 @@
 namespace Player {
     extern SDL_Rect player;
     extern SDL_Texture *playerTexture;
-    extern float velocityX, velocityY, speed;
+    extern float velocityX, velocityY, speed, weight;
     extern int health, ammo;
     extern const float jumpForce;
 

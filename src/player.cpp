@@ -8,7 +8,8 @@ namespace Player {
     SDL_Texture *playerTexture;
     float velocityX, velocityY = 0.0f;
     float speed = 1.5f;
-    const float jumpForce = -50.0f;
+    float weight = 0.5f;
+    const float jumpForce = -100.0f;
     int health, ammo;
     
     // Draw player
