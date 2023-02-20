@@ -54,7 +54,7 @@ void checkCollision() {
 void render() {
     
     // Set background color
-    SDL_SetRenderDrawColor(renderer, 0, 180, 180, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, Player::playerTexture, NULL, &Player::player);
@@ -109,8 +109,6 @@ int main(int argc, char** argv) {
 
                             // Jump left
                             if (keyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_SPACE]) {
-                        
-                                Player::velocityY = 0.0f; 
 
                                 Player::velocityY += Player::jumpForce;
                                 Player::velocityX -= Player::speed;
@@ -118,15 +116,13 @@ int main(int argc, char** argv) {
                             
                             // Jump right
                             else if (keyboardState[SDL_SCANCODE_D] && keyboardState[SDL_SCANCODE_SPACE]) {
-                                
-                                Player::velocityY = 0.0f; 
-
+                            
                                 Player::velocityY += Player::jumpForce;
-                                Player::velocityX += Player::speed;
+                                Player::velocityX = Player::speed;
                             }
 
                             // Jump straight up 
-                            else {
+                            if (Player::velocityX == 0.0f) {
 
                                 Player::velocityX = 0.0f;
                                 Player::velocityY = 0.0f; 

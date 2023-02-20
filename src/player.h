@@ -1,5 +1,4 @@
 #include <SDL.h>
-#include <SDL_image.h>
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -12,7 +11,7 @@ namespace Player {
     extern float maxSpeed;
     extern const float jumpForce;
 
-    void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y, int w, int h, const char *sprite);
+    void drawPlayer(SDL_Window *window, SDL_Renderer *renderer, int x, int y, int w, int h, const char* sprite);
 }
 
 #endif
